@@ -17,4 +17,4 @@ dir_servo_angle_calibration(0)
 while True:
 	forward(1)
 	delay(10)
-	forward(1)
+	forward(0)

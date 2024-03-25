@@ -3,16 +3,26 @@ import threading
 from time import *
 import time
 from picarx import Picarx
+import pygame
 from pygame import mixer
+import pyttsx3
+
+engine = pyttsx3.init()
 mixer.init()
+
+start_sound = pygame.mixer.Sound("sounds/sounds/sounds/start.wav")
+over_sound = pygame.mixer.Sound("sounds/sounds/sounds/over.wav")
+alarm_sound = pygame.mixer.Sound("sounds/sounds/sounds/quack.mp3")
+
+start_sound.play()
 
 px = Picarx()
 
 if __name__ == "__main__":
     try:
         pan_angle = 0
-        tilt_angle = 0
-    
+        tilt_angle = 0        
+
         port = 5555
         server = "192.168.1.71"
         HEADER = 64
@@ -27,7 +37,7 @@ if __name__ == "__main__":
         servoangle = 3
 
         def handle_client(conn, addr):
-            global servoangle
+            global servoangle,pan_angle,tilt_angle
             connected = True
             while connected:
                 msg_length = conn.recv(HEADER).decode(FORMAT)
@@ -56,9 +66,25 @@ if __name__ == "__main__":
                     if msg == "left":
                         servoangle -= 4
                         px.set_dir_servo_angle(servoangle)
+                    if msg == "camera_up":
+                        tilt_angle += 4
+                    if msg == "camera_down":
+                        tilt_angle -= 4
+                    if msg == "camera_left":
+                        pan_angle += 4
+                    if msg == "camera_right":
+                        pan_angle -= 4
 
                     if msg == "alarm_sound":
-                        mixer.music.load("sounds/sounds/sounds/alarm.wav")
+                        alarm_sound.play()
+                    if msg[:4] == "word":
+                        print(msg[4:])
+                        engine.say(msg[4:])
+                        engine.runAndWait()
+
+                    px.set_cam_tilt_angle(tilt_angle)
+                    px.set_cam_pan_angle(pan_angle)
+                time.sleep(0.09)
 
             conn.close()
 
@@ -80,3 +106,4 @@ if __name__ == "__main__":
         px.set_dir_servo_angle(0)
         px.stop()
         sleep(.2)
+        over_sound.play()
