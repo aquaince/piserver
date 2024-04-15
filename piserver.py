@@ -1,11 +1,15 @@
 import socket
 import threading
+import subprocess
 from time import *
 import time
 from picarx import Picarx
 import pygame
 from pygame import mixer
 import pyttsx3
+import os
+
+os.getcwd()
 
 engine = pyttsx3.init()
 mixer.init()
@@ -75,6 +79,10 @@ if __name__ == "__main__":
                     if msg == "camera_right":
                         pan_angle -= 4
 
+                    if msg == "over_sound":
+                        connected = False
+                        subprocess.call("shutdown.sh")
+
                     if msg == "alarm_sound":
                         alarm_sound.play()
                     if msg[:4] == "word":
@@ -82,6 +90,7 @@ if __name__ == "__main__":
                         engine.say(msg[4:])
                         engine.runAndWait()
 
+                    print(msg)
                     px.set_cam_tilt_angle(tilt_angle)
                     px.set_cam_pan_angle(pan_angle)
                 time.sleep(0.09)
