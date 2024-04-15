@@ -9,7 +9,7 @@ from pygame import mixer
 import pyttsx3
 import os
 
-os.getcwd()
+#check
 
 engine = pyttsx3.init()
 mixer.init()
