@@ -1,50 +1,34 @@
-from picarx import Picarx
+import socket
+import threading
 
-px = Picarx()
+class Server:
+    def __init__(self, host, port, header=64, format="utf-8", disconnect_cmd="!bye"):
+        self.host = host
+        self.port = port
+        self.header = header
+        self.format = format
+        self.disconnect_cmd = disconnect_cmd
+        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server_socket.bind((self.host, self.port))
 
-class Robot:
-    def __init__(self):
-        self.pan_angle = 0
-        self. tilt_angle = 0
-        servoangle = 3
-    
-    def forward():
-        px.forward(5)
-        time.sleep(1)
-        px.stop()
-    
-    def backward():
-        px.backward(5)
-        time.sleep(1)
-        px.stop()
+    def start(self):
+        self.server_socket.listen()
+        print(f"Server started on {self.host}:{self.port}...")
+        while True:
+            conn, addr = self.server_socket.accept()
+            print(f"Connected to {addr}")
+            threading.Thread(target=self.handle_client, args=(conn, addr)).start()
 
-    def right():
-        servoangle += 4
-        px.set_dir_servo_angle(servoangle)
-
-    def left():
-        servoangle -= 4
-        px.set_dir_servo_angle(servoangle)
-    
-    def camera_up():
-        if tilt_angle < 90:
-            tilt_angle += 4
-        
-    def camera_down():
-        if tilt_angle > -90:
-            tilt_angle -= 4
-
-    def camera_left():
-        if pan_angle < 90:
-            pan_angle += 4
-
-    def camera_right():
-        if pan_angle > -90:
-            pan_angle -= 4
-
-    
-
-
-
-pan_angle = 0
-tilt_angle = 0 
+    def handle_client(self, conn, addr):
+        print(f"New connection from {addr}")
+        connected = True
+        while connected:
+            msg_length = conn.recv(self.header).decode(self.format)
+            if msg_length:
+                msg_length = int(msg_length)
+                msg = conn.recv(msg_length).decode(self.format)
+                print(f"Received message: {msg}")
+                if msg == self.disconnect_cmd:
+                    connected = False
+                # Handle other commands...
+        conn.close()
