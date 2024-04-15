@@ -18,6 +18,12 @@ class Server:
         self.pan_angle = 0
         self.tilt_angle = 0
 
+    def cleanup(self):
+        self.robot.set_servo_angle(0)
+        self.robot.set_camera_angles(0, 0)
+        self.robot.px.stop()
+        sleep(0.2)
+
     def start(self):
         self.robot = Robot()
         self.server_socket.listen()
