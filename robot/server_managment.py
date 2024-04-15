@@ -45,9 +45,9 @@ class Server:
                 if msg == self.disconnect_cmd:
                     connected = False
                 if msg == "forward":
-                    Robot.move_forward()
+                    self.robot.move_forward()
                 if msg == "backward":
-                    Robot.move_backward()
+                    self.robot.move_backward()
 
                 if msg == "right":
                     self.servoangle += 3
@@ -75,6 +75,6 @@ class Server:
                     engine.say(msg[4:])
                     engine.runAndWait()
                 
-                Robot.set_servo_angle(self.servoangle)
-                Robot.set_camera_angles(self.pan_angle, self.tilt_angle)
+                self.robot.set_servo_angle(self.servoangle)
+                self.robot.set_camera_angles(self.pan_angle, self.tilt_angle)
         conn.close()
