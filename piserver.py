@@ -9,8 +9,6 @@ from pygame import mixer
 import pyttsx3
 import os
 
-#check
-
 engine = pyttsx3.init()
 mixer.init()
 
@@ -55,13 +53,11 @@ if __name__ == "__main__":
                         px.forward(5)
                         time.sleep(1)
                         px.stop()
-                        #tab
 
                     if msg == "backward":
                         px.backward(5)
                         time.sleep(1)
                         px.stop()
-                        #tab
 
                     if msg == "right":
                         servoangle += 4
