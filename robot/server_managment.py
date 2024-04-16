@@ -1,5 +1,6 @@
 import socket
 import threading
+from time import sleep
 from robot.robot_actions import Robot
 import pyttsx3
 
@@ -22,7 +23,7 @@ class Server:
         self.robot.set_servo_angle(0)
         self.robot.set_camera_angles(0, 0)
         self.robot.px.stop()
-        sleep(0.2)
+        time.sleep(0.2)
 
     def start(self):
         self.robot = Robot()
@@ -37,44 +38,45 @@ class Server:
         print(f"New connection from {addr}")
         connected = True
         while connected:
-            msg_length = conn.recv(self.header).decode(self.format)
-            if msg_length:
-                msg_length = int(msg_length)
-                msg = conn.recv(msg_length).decode(self.format)
-                print(f"Received message: {msg}")
-                if msg == self.disconnect_cmd:
-                    connected = False
-                if msg == "forward":
-                    self.robot.move_forward()
-                if msg == "backward":
-                    self.robot.move_backward()
+            msg_length = conn.recv(self.header)
+            if not msg_length:
+                break
+            msg_length = int.from_bytes(msg_length, "big")  # Convert bytes to integer
+            msg = conn.recv(msg_length).decode(self.format)
+            print(f"Received message: {msg}")
+            if msg == self.disconnect_cmd:
+                connected = False
+            if msg == "forward":
+                self.robot.move_forward()
+            if msg == "backward":
+                self.robot.move_backward()
 
-                if msg == "right":
-                    self.servoangle += 3
+            if msg == "right":
+                self.servoangle += 3
 
-                if msg == "left":
-                    self.servoangle -= 3
+            if msg == "left":
+                self.servoangle -= 3
 
-                if msg == "camera_up":
-                    self.tilt_angle += 4
-                if msg == "camera_down":
-                    self.tilt_angle -= 4
-                if msg == "camera_left":
-                    self.pan_angle += 4
-                if msg == "camera_right":
-                    self.pan_angle -= 4
+            if msg == "camera_up":
+                self.tilt_angle += 4
+            if msg == "camera_down":
+                self.tilt_angle -= 4
+            if msg == "camera_left":
+                self.pan_angle += 4
+            if msg == "camera_right":
+                self.pan_angle -= 4
 
-                if msg == "over_sound":
-                    connected = False
-                    subprocess.call("shutdown.sh")
+            if msg == "over_sound":
+                connected = False
+                subprocess.call("shutdown.sh")
 
-                if msg == "alarm_sound":
-                    alarm_sound.play()
-                if msg[:4] == "word":
-                    print(msg[4:])
-                    engine.say(msg[4:])
-                    engine.runAndWait()
-                
-                self.robot.set_servo_angle(self.servoangle)
-                self.robot.set_camera_angles(self.pan_angle, self.tilt_angle)
+            if msg == "alarm_sound":
+                alarm_sound.play()
+            if msg[:4] == "word":
+                print(msg[4:])
+                engine.say(msg[4:])
+                engine.runAndWait()
+            
+            self.robot.set_servo_angle(self.servoangle)
+            self.robot.set_camera_angles(self.pan_angle, self.tilt_angle)
         conn.close()
