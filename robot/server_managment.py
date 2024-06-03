@@ -2,8 +2,9 @@ import socket
 import threading
 import subprocess
 import time
-from robot.robot_actions import Robot  # Assuming this import is correct
-import pyttsx3  # Assuming this import is correct
+from robot.robot_actions import Robot  
+from robot.micrecorder import *
+import pyttsx3
 
 class Server:
     def __init__(self, host, port, header=64, format="utf-8", disconnect_cmd="!bye"):
@@ -79,6 +80,9 @@ class Server:
                         # Ensure engine is properly initialized
                         engine.say(msg[4:])
                         engine.runAndWait()
+
+                    if msg == "record":
+                        record(5)
 
                     self.robot.set_servo_angle(self.servoangle)
                     self.robot.set_camera_angles(self.pan_angle, self.tilt_angle)
