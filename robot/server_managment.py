@@ -81,8 +81,9 @@ class Server:
                         engine.say(msg[4:])
                         engine.runAndWait()
 
-                    if msg == "record":
-                        record(5)
+                    if msg.startswith("record"):
+                        seconds = int(msg[6:])
+                        record(seconds)
 
                     self.robot.set_servo_angle(self.servoangle)
                     self.robot.set_camera_angles(self.pan_angle, self.tilt_angle)
